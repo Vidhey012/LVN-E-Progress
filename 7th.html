@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>7th Marks</title>
+	<link rel="shortcut icon" type="image/x-icon" href="images/logo.png" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">	</script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <style id="views">
+	body {
+		background-image:url('images/bg.jpg');
+		background-position: center center;
+		background-attachment: fixed;
+		background-repeat: no-repeat;
+		background-size: cover;
+	}
+	td{
+	text-align:center;
+	background-color:#FFFF8F;
+	}
+	th{
+	text-align:center;
+	background-color:yellow;
+	}
+	</style>
+
+</head>
+
+<body>
+	<div class="table-responsive" id="Main">
+       <table id="view" class="table table-bordered">
+            <tr>
+			    <td colspan="33"><b style="font-size: 30px;">LALITHA VIDYA NILAYAM E.M HIGH SCHOOL</b></td>
+            </tr>			
+            <tr>
+			    <td colspan="2"><b>Class : 7</b></td>
+				<td colspan="29"><b>Formative Assessment</b></td>
+				<td colspan="2"><b>Medium : English</b></td>
+            </tr>			
+            <tr>
+			    <th rowspan="3">S.No</th>
+				<th rowspan="3">Student Name</th>
+				<th colspan="5">Telugu</th>
+				<th colspan="5">Hindi</th>
+				<th colspan="5">English</th>
+				<th colspan="5">Mathematics</th>
+				<th colspan="5">Science</th>
+				<th colspan="5">Social</th>
+				<th rowspan="2">Grand Total</th>
+			</tr>
+			<tr>
+			    <th>T1</th>
+				<th>T2</th>
+				<th>T3</th>
+				<th>T4</th>
+				<th>Total</th>
+				<th>T1</th>
+				<th>T2</th>
+				<th>T3</th>
+				<th>T4</th>
+				<th>Total</th>
+				<th>T1</th>
+				<th>T2</th>
+				<th>T3</th>
+				<th>T4</th>
+				<th>Total</th>
+				<th>T1</th>
+				<th>T2</th>
+				<th>T3</th>
+				<th>T4</th>
+				<th>Total</th>
+				<th>T1</th>
+				<th>T2</th>
+				<th>T3</th>
+				<th>T4</th>
+				<th>Total</th>
+				<th>T1</th>
+				<th>T2</th>
+				<th>T3</th>
+				<th>T4</th>
+				<th>Total</th>
+			</tr>
+			<tr>
+			    <th>10</th>
+				<th>10</th>
+				<th>10</th>
+				<th>20</th>
+				<th>50</th>
+				<th>10</th>
+				<th>10</th>
+				<th>10</th>
+				<th>20</th>
+				<th>50</th>
+				<th>10</th>
+				<th>10</th>
+				<th>10</th>
+				<th>20</th>
+				<th>50</th>
+				<th>10</th>
+				<th>10</th>
+				<th>10</th>
+				<th>20</th>
+				<th>50</th>
+				<th>10</th>
+				<th>10</th>
+				<th>10</th>
+				<th>20</th>
+				<th>50</th>
+				<th>10</th>
+				<th>10</th>
+				<th>10</th>
+				<th>20</th>
+				<th>50</th>
+				<th>300</th>
+			</tr>
+       </table>
+    </div>
+	
+	
+	<div style="text-align:right;position:absolute;right: 10px;  top: 12px;">
+	<button onclick="printData()" style="height:50px;width:50px;background-image:url('images/print.png');border-radius:50px;"></button>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<button onclick="exportTableToExcel('view')" style="height:50px;width:50px;background-image:url('images/ex.png');border-radius:50px;"></button>	
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	</div>	
+	
+	<script src="https://www.gstatic.com/firebasejs/3.7.4/firebase.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script>
+	var firebaseConfig,messagesRef1,messagesRef2;
+	var stulist=[];
+	var telugut1,telugut2,telugut3,telugut4,telugutotal;
+	var hindit1,hindit2,hindit3,hindit4,hinditotal;
+	var englisht1,englisht2,englisht3,englisht4,englishtotal;
+	var mathst1,mathst2,mathst3,mathst4,mathstotal;
+	var sciencet1,sciencet2,sciencet3,sciencet4,sciencetotal;
+	var socialt1,socialt2,socialt3,socialt4,socialtotal;
+	var sno,name;
+	window.onload = function onStartup() //------------------------------------------------------>>executed when page is loaded
+		{
+		sno=0;
+		telugut1=0;telugut2=0;telugut3=0;telugut4=0;telugutotal=0;
+	    hindit1=0;hindit2=0;hindit3=0;hindit4=0;hinditotal=0;
+	    englisht1=0;englisht2=0;englisht3=0;englisht4=0;englishtotal=0;
+	    mathst1=0;mathst2=0;mathst3=0;mathst4=0;mathstotal=0;
+	    sciencet1=0;sciencet2=0;sciencet3=0;sciencet4=0;sciencetotal=0;
+	    socialt1=0;socialt2=0;socialt3=0;socialt4=0;socialtotal=0;
+		firebaseConfig = {
+				apiKey: "AIzaSyCjsdEVINhhrg0Yods-V47YT9Srk4FcqxU",
+				authDomain: "marklist-95314.firebaseapp.com",
+				databaseURL: "https://marklist-95314-default-rtdb.firebaseio.com/",
+				projectId: "marklist-95314",
+				storageBucket: "marklist-95314.appspot.com",
+				messagingSenderId: "386245515006",
+				appId: "1:386245515006:web:23393a43cbea237be3b7af",
+				measurementId: "G-4TDJNZPSWC"
+			};
+			firebase.initializeApp(firebaseConfig);
+		    messagesRef1 = firebase.database().ref('StudentData');
+		    messagesRef1.once('value') .then(function(snapshot) {
+	        snapshot.forEach(function(childSnapshot) {
+				var childData = childSnapshot.val();
+				var classname = childData.classname;
+				var studentname = childData.studentname;
+				if(classname == '7th' && !(stulist.includes(studentname))) {
+					stulist.push(studentname);
+				}
+			});
+			if(stulist.length == 0) {
+				var table = document.getElementById("view");
+                var row = table.insertRow();
+                var cell1 = row.insertCell(0);
+                cell1.innerHTML = "No Data Exists !";
+				cell1.colSpan = "33";
+				
+			} else {
+				stulist.forEach(displayStudentsMarks);
+			}
+		});
+		}
+	
+	function displayStudentsMarks(value, index, array) {
+		messagesRef2 = firebase.database().ref('7thMarks').orderByChild("name").equalTo(value);
+		messagesRef2.once('value') .then(function(snapshot) {
+	    snapshot.forEach(function(childSnapshot) {
+				var childData = childSnapshot.val();
+				var subjectname = childData.subjectname;
+				eval(subjectname+"t1"+"= '"+childData.tool1+"'");
+				eval(subjectname+"t2"+"= '"+childData.tool2+"'");
+				eval(subjectname+"t3"+"= '"+childData.tool3+"'");
+				eval(subjectname+"t4"+"= '"+childData.tool4+"'");
+				eval(subjectname+"total"+"= '"+childData.total+"'");
+			});	
+		name=value;
+		insert();
+		});
+	}
+
+    function insert(){
+	sno=sno+1;
+	var table = document.getElementById("view");
+    var row = table.insertRow();
+	var cell1 = row.insertCell(0);
+	var cell2 = row.insertCell(1);
+	var cell3 = row.insertCell(2);
+	var cell4 = row.insertCell(3);
+	var cell5 = row.insertCell(4);
+	var cell6 = row.insertCell(5);
+	var cell7 = row.insertCell(6);
+	var cell8 = row.insertCell(7);
+	var cell9 = row.insertCell(8);
+	var cell10 = row.insertCell(9);
+	var cell11 = row.insertCell(10);
+	var cell12 = row.insertCell(11);
+	var cell13 = row.insertCell(12);
+	var cell14 = row.insertCell(13);
+	var cell15 = row.insertCell(14);
+	var cell16 = row.insertCell(15);
+	var cell17 = row.insertCell(16);
+	var cell18 = row.insertCell(17);
+	var cell19 = row.insertCell(18);
+	var cell20 = row.insertCell(19);
+	var cell21 = row.insertCell(20);
+	var cell22 = row.insertCell(21);
+	var cell23 = row.insertCell(22);
+	var cell24 = row.insertCell(23);
+	var cell25 = row.insertCell(24);
+	var cell26 = row.insertCell(25);
+	var cell27 = row.insertCell(26);
+	var cell28 = row.insertCell(27);
+	var cell29 = row.insertCell(28);
+	var cell30 = row.insertCell(29);
+	var cell31 = row.insertCell(30);
+	var cell32 = row.insertCell(31);
+	var cell33 = row.insertCell(32);
+	cell1.innerHTML=sno;
+	cell2.innerHTML = name;
+	cell3.innerHTML = telugut1;
+	cell4.innerHTML = telugut2;
+	cell5.innerHTML = telugut3;
+	cell6.innerHTML = telugut4;
+	cell7.innerHTML = telugutotal;
+	cell8.innerHTML = hindit1;
+	cell9.innerHTML = hindit2;
+	cell10.innerHTML = hindit3;
+	cell11.innerHTML = hindit4;
+	cell12.innerHTML = hinditotal;
+	cell13.innerHTML = englisht1;
+	cell14.innerHTML = englisht2;
+	cell15.innerHTML = englisht3;
+	cell16.innerHTML = englisht4;
+	cell17.innerHTML = englishtotal;
+	cell18.innerHTML = mathst1;
+	cell19.innerHTML = mathst2;
+	cell20.innerHTML = mathst3;
+	cell21.innerHTML = mathst4;
+	cell22.innerHTML = mathstotal;
+	cell23.innerHTML = sciencet1;
+	cell24.innerHTML = sciencet2;
+	cell25.innerHTML = sciencet3;
+	cell26.innerHTML = sciencet4;
+	cell27.innerHTML = sciencetotal;
+	cell28.innerHTML = socialt1;
+	cell29.innerHTML = socialt2;
+	cell30.innerHTML = socialt3;
+	cell31.innerHTML = socialt4;
+	cell32.innerHTML = socialtotal;
+	cell33.innerHTML = eval(Math.floor(telugutotal)+Math.floor(hinditotal)+Math.floor(englishtotal)+Math.floor(mathstotal)+Math.floor(sciencetotal)+Math.floor(socialtotal));
+	return initilize();
+	}
+	
+	function initilize(){
+	telugut1=0;telugut2=0;telugut3=0;telugut4=0;telugutotal=0;
+	hindit1=0;hindit2=0;hindit3=0;hindit4=0;hinditotal=0;
+	englisht1=0;englisht2=0;englisht3=0;englisht4=0;englishtotal=0;
+	mathst1=0;mathst2=0;mathst3=0;mathst4=0;mathstotal=0;
+	sciencet1=0;sciencet2=0;sciencet3=0;sciencet4=0;sciencetotal=0;
+	socialt1=0;socialt2=0;socialt3=0;socialt4=0;socialtotal=0;
+	}
+		
+function printData()
+   {
+   var printWindow = window.open('', '', 'height=3000,width=3000');
+        printWindow.document.write('<html><head><title>Table Contents</title>');
+ 
+        //Print the Table CSS.
+        var table_style = document.getElementById("views").innerHTML;
+        printWindow.document.write('<style type = "text/css">');
+        printWindow.document.write(table_style);
+        printWindow.document.write('</style>');
+        printWindow.document.write('</head>');
+ 
+        //Print the DIV contents i.e. the HTML Table.
+        printWindow.document.write('<body>');
+        var divContents = document.getElementById("Main").innerHTML;
+        printWindow.document.write(divContents);
+        printWindow.document.write('</body>');
+ 
+        printWindow.document.write('</html>');
+        printWindow.document.close();
+        printWindow.print();
+   }
+   
+   function exportTableToExcel(tableID, filename = ''){
+    var downloadLink;
+    var dataType = 'application/vnd.ms-excel';
+    var tableSelect = document.getElementById(tableID);
+    var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+    
+    // Specify file name
+    filename = filename?filename+'.xls':'7thMarks.xls';
+    
+    // Create download link element
+    downloadLink = document.createElement("a");
+    
+    document.body.appendChild(downloadLink);
+    
+    if(navigator.msSaveOrOpenBlob){
+        var blob = new Blob(['\ufeff', tableHTML], {
+            type: dataType
+        });
+        navigator.msSaveOrOpenBlob( blob, filename);
+    }else{
+        // Create a link to the file
+        downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+    
+        // Setting the file name
+        downloadLink.download = filename;
+        
+        //triggering the function
+        downloadLink.click();
+    }
+}
+	</script>
+</body>
+
+</html>

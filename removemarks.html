@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Remove Marks</title>
+	<link rel="shortcut icon" type="image/x-icon" href="images/logo.png" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+	</script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+	<style>
+	body {
+		background-image:url('images/bg.jpg');
+		background-position: center center;
+		background-attachment: fixed;
+		background-repeat: no-repeat;
+		background-size: cover;
+	}
+	</style>
+</head>
+
+<body class="container" style="margin-top: 50px; width: 50%; height:auto;">
+	<div id="body">
+		<h2 class="text-primary" style="margin-left: 15px; margin-bottom: 10px">
+            Student Marks Removing Form
+         </h2>
+		<form class="container" id="stuForm">
+			<div class="card bg-warning">
+				<div class="card-body">
+					<div class="form-group">
+						<label for="exampleFormControlInput1"> Student Class </label>
+						<select id="stuclass" class="form-control" required>
+							<option value=null>Select Class</option>
+							<option value='6th'>6th</option>
+							<option value='7th'>7th</option>
+							<option value='8th'>8th</option>
+							<option value='9th'>9th</option>
+							<option value='10th'>10th</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="exampleFormControlInput1"> Subject </label>
+						<select id="stusub" class="form-control" required>
+							<option value=null>Select Subject</option>
+							<option value='telugu'>Telugu</option>
+							<option value='hindi'>Hindi</option>
+							<option value='english'>English</option>
+							<option value='maths'>Maths</option>
+							<option value='science'>Science</option>
+							<option value='physics'>Physics</option>
+							<option value='biology'>Biology</option>
+							<option value='social'>Social</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="exampleFormControlInput1"> Student Name </label>
+						<select id="sname" class="form-control" required>
+							<option value=null>Select Student Name</option>
+						</select>
+					</div>
+				</div>
+				<button id="rs" class="btn btn-danger"> Remove Marks </button>
+			</div>
+		</form>
+	</div>
+	<script src="https://www.gstatic.com/firebasejs/3.7.4/firebase.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script>
+	var firebaseConfig;
+	var stuname, stuclass,stusub;
+	var stulist = [];
+	window.onload = function onStartup() //------------------------------------------------------>>executed when page is loaded
+		{
+			firebaseConfig = {
+				apiKey: "AIzaSyCjsdEVINhhrg0Yods-V47YT9Srk4FcqxU",
+				authDomain: "marklist-95314.firebaseapp.com",
+				databaseURL: "https://marklist-95314-default-rtdb.firebaseio.com/",
+				projectId: "marklist-95314",
+				storageBucket: "marklist-95314.appspot.com",
+				messagingSenderId: "386245515006",
+				appId: "1:386245515006:web:23393a43cbea237be3b7af",
+				measurementId: "G-4TDJNZPSWC"
+			};
+			firebase.initializeApp(firebaseConfig);
+			document.getElementById("rs").addEventListener("click", removeStudent);
+		}
+	document.getElementById('stuclass').addEventListener('change', function() {
+		stuclass = document.getElementById("stuclass").value;
+		stulist = [];
+		var mySelect = document.getElementById("sname");
+		var len = mySelect.length;
+		for(var i = 0; i < len; i++) {
+			mySelect.remove(0);
+		}
+		var opt = stulist[0];
+		var el = document.createElement("option");
+		el.textContent = "Select Student Name";
+		el.value = null;
+		document.getElementById("sname").appendChild(el);
+		var ref = firebase.database().ref('StudentData');
+		ref.once('value') .then(function(snapshot) {
+			snapshot.forEach(function(childSnapshot) {
+				var childData = childSnapshot.val();
+				var classname = childData.classname;
+				var studentname = childData.studentname;
+				if(classname == stuclass && !(stulist.includes(studentname))) {
+					stulist.push(studentname);
+				}
+			});
+			for(var i = 0; i < stulist.length; i++) {
+				var opt = stulist[i];
+				var el = document.createElement("option");
+				el.textContent = opt;
+				el.value = opt;
+				document.getElementById("sname").appendChild(el);
+			}
+		});
+	});
+
+	function removeStudent(e) {
+		e.preventDefault();
+		stuclass = document.getElementById("stuclass").value;
+		stusub = document.getElementById("stusub").value;
+		stuname = document.getElementById("sname").value;
+		document.getElementById("body").style.display = "none";
+		if(stuclass == null || stuname == null || stusub == null || stusub == "null"|| stuclass == "null" || stuname == "null") {
+			Swal.fire({
+				icon: 'error',
+				title: 'Invalid Data !',
+				text: 'Please fill all fields',
+			}).then(() => {document.getElementById("body").style.display = "block";});
+		} else {
+			var messagesRef2 = firebase.database().ref(stuclass+'Marks');
+			messagesRef2.once('value') .then(function(snapshot) {
+				snapshot.forEach(function(data) {
+					var childData1 = data.val();
+					if(childData1.classname == stuclass && childData1.name == stuname && childData1.subjectname == stusub) {
+						messagesRef2.child(data.getKey()).remove();
+					}
+				});
+				Swal.fire({
+					icon: 'success',
+					title: 'Student Marks Removed !',
+					text: stuname + "'s "+stusub+" marks are removed successfully",
+				}).then(() => {
+					window.location.reload();
+				});
+			});
+		}
+	}
+	</script>
+</body>
+
+</html>

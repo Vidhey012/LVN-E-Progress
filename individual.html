@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Individual Marks</title>
+	<link rel="shortcut icon" type="image/x-icon" href="images/logo.png" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+	</script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+	<style id="views">
+	body {
+		background-image:url('images/bg.jpg');
+		background-position: center center;
+		background-attachment: fixed;
+		background-repeat: no-repeat;
+		background-size: cover;
+	}
+	td{
+	text-align:center;
+	background-color:#FFFF8F;
+	}
+	th{
+	text-align:center;
+	background-color:yellow;
+	}
+	</style>
+</head>
+
+<body class="container" style="margin-top: 50px;">
+	<div id="body">
+		<h2 class="text-primary" style="margin-left: 15px; margin-bottom: 10px">
+            Student Marks Viewing Form
+         </h2>
+		<form class="container" id="stuForm">
+			<div class="card bg-warning">
+				<div class="card-body">
+					<div class="form-group">
+						<label for="exampleFormControlInput1"> Student Class </label>
+						<select id="stuclass" class="form-control" required>
+							<option value=null>Select Class</option>
+							<option value='6th'>6th</option>
+							<option value='7th'>7th</option>
+							<option value='8th'>8th</option>
+							<option value='9th'>9th</option>
+							<option value='10th'>10th</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="exampleFormControlInput1"> Student Name </label>
+						<select id="sname" class="form-control" required>
+							<option value=null>Select Student Name</option>
+						</select>
+					</div>
+				</div>
+				<button id="vm" class="btn btn-primary"> View Marks </button>
+			</div>
+		</form>
+		<div class="table-responsive" id="display" style="display:none;">
+				    <table id="view" class="table table-bordered"  style="margin-top:50px; ">
+					<tr>
+					<th>Subject</th>
+					<th>Tool-1 Marks</th>
+					<th>Tool-2 Marks</th>
+					<th>Tool-3 Marks</th>
+					<th>Tool-4 Marks</th>
+					<th>Total Marks</th>
+					<th>Grade</th>
+					</tr>
+					</table>
+				</div>
+	</div>
+	
+	<div style="text-align:right;position:absolute;right: 10px;  top: 12px;">
+	<button onclick="printData()" style="height:50px;width:50px;background-image:url('images/print.png');border-radius:50px;"></button>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<button onclick="exportTableToExcel('view')" style="height:50px;width:50px;background-image:url('images/ex.png');border-radius:50px;"></button>	
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	</div>
+	
+	<script src="https://www.gstatic.com/firebasejs/3.7.4/firebase.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script>
+	var firebaseConfig;
+	var stuname, stuclass;
+	var stulist = [];
+	var telugut1,telugut2,telugut3,telugut4,telugutotal,telugugrade;
+	var hindit1,hindit2,hindit3,hindit4,hinditotal,hindigrade;
+	var englisht1,englisht2,englisht3,englisht4,englishtotal,englishgrade;
+	var mathst1,mathst2,mathst3,mathst4,mathstotal,mathsgrade;
+	var sciencet1,sciencet2,sciencet3,sciencet4,sciencetotal,sciencegrade;
+	var physicst1,physicst2,physicst3,physicst4,physicstotal,physicsgrade;
+	var biologyt1,biologyt2,biologyt3,biologyt4,biologytotal,biologygrade;
+	var socialt1,socialt2,socialt3,socialt4,socialtotal,socialgrade;
+	window.onload = function onStartup() //------------------------------------------------------>>executed when page is loaded
+		{
+		telugut1=0;telugut2=0;telugut3=0;telugut4=0;telugutotal=0;telugugrade="D1";
+	    hindit1=0;hindit2=0;hindit3=0;hindit4=0;hinditotal=0;hindigrade="D1";
+	    englisht1=0;englisht2=0;englisht3=0;englisht4=0;englishtotal=0;englishgrade="D1";
+	    mathst1=0;mathst2=0;mathst3=0;mathst4=0;mathstotal=0;mathsgrade="D1";		
+	    sciencet1=0;sciencet2=0;sciencet3=0;sciencet4=0;sciencetotal=0;sciencegrade="D1";	
+	    physicst1=0;physicst2=0;physicst3=0;physicst4=0;physicstotal=0;physicsgrade="D1";	
+		biologyt1=0;biologyt2=0;biologyt3=0;biologyt4=0;biologytotal=0;biologygrade="D1";	
+	    socialt1=0;socialt2=0;socialt3=0;socialt4=0;socialtotal=0;socialgrade="D1";	
+			firebaseConfig = {
+				apiKey: "AIzaSyCjsdEVINhhrg0Yods-V47YT9Srk4FcqxU",
+				authDomain: "marklist-95314.firebaseapp.com",
+				databaseURL: "https://marklist-95314-default-rtdb.firebaseio.com/",
+				projectId: "marklist-95314",
+				storageBucket: "marklist-95314.appspot.com",
+				messagingSenderId: "386245515006",
+				appId: "1:386245515006:web:23393a43cbea237be3b7af",
+				measurementId: "G-4TDJNZPSWC"
+			};
+			firebase.initializeApp(firebaseConfig);
+			document.getElementById("vm").addEventListener("click", viewMarks);
+		}
+		
+	document.getElementById('stuclass').addEventListener('change', function() {
+	    document.getElementById("display").style.display = "none";
+		stuclass = document.getElementById("stuclass").value;
+		stulist = [];
+		var mySelect = document.getElementById("sname");
+		var len = mySelect.length;
+		for(var i = 0; i < len; i++) {
+			mySelect.remove(0);
+		}
+		var opt = stulist[0];
+		var el = document.createElement("option");
+		el.textContent = "Select Student Name";
+		el.value = null;
+		document.getElementById("sname").appendChild(el);
+		var ref = firebase.database().ref('StudentData');
+		ref.once('value') .then(function(snapshot) {
+			snapshot.forEach(function(childSnapshot) {
+				var childData = childSnapshot.val();
+				var classname = childData.classname;
+				var studentname = childData.studentname;
+				if(classname == stuclass && !(stulist.includes(studentname))) {
+					stulist.push(studentname);
+				}
+			});
+			for(var i = 0; i < stulist.length; i++) {
+				var opt = stulist[i];
+				var el = document.createElement("option");
+				el.textContent = opt;
+				el.value = opt;
+				document.getElementById("sname").appendChild(el);
+			}
+		});
+	});
+
+    document.getElementById('sname').addEventListener('change', function() {
+	    document.getElementById("display").style.display = "none";
+	});
+	
+    function viewMarks(e){
+	e.preventDefault();
+	stuclass = document.getElementById("stuclass").value;
+	stuname = document.getElementById("sname").value;
+	var r=document.getElementById("view").rows.length;
+    for(var i=(r-1) ;i>0;i--){
+            document.getElementById("view").deleteRow(i);
+    }
+		if(stuclass == null || stuname == null || stuclass == "null" || stuname == "null") {
+		document.getElementById("body").style.display = "none";
+			Swal.fire({
+				icon: 'error',
+				title: 'Invalid Data !',
+				text: 'Please fill all fields',
+			}).then(() => {document.getElementById("body").style.display = "block";});
+		} 
+		else if(stuclass=="6th" || stuclass=="7th") {
+		    document.getElementById("display").style.display = "block";
+			View1();
+		}
+		else if(stuclass=="8th" || stuclass=="9th" || stuclass=="10th") {
+		    document.getElementById("display").style.display = "block";
+			View2();
+		}
+	}
+ 	
+	function View1(){
+	var messagesRef1 = firebase.database().ref(stuclass+'Marks').orderByChild("name").equalTo(stuname);
+		messagesRef1.once('value') .then( function(snapshot) {
+	    snapshot.forEach(function(childSnapshot) {
+				var childData = childSnapshot.val();
+				var subjectname = childData.subjectname;
+				eval(subjectname+"t1"+"= '"+childData.tool1+"'");
+				eval(subjectname+"t2"+"= '"+childData.tool2+"'");
+				eval(subjectname+"t3"+"= '"+childData.tool3+"'");
+				eval(subjectname+"t4"+"= '"+childData.tool4+"'");
+				eval(subjectname+"total"+"= '"+childData.total+"'");
+				eval(subjectname+"grade"+"= '"+childData.grade+"'");
+			});	
+		insert1();
+		});
+	}
+	
+	function insert1(){
+	var table = document.getElementById("view");
+	var row1 = table.insertRow();
+	var cell11 = row1.insertCell(0);
+	var cell12 = row1.insertCell(1);
+	var cell13 = row1.insertCell(2);
+	var cell14 = row1.insertCell(3);
+	var cell15 = row1.insertCell(4);
+	var cell16 = row1.insertCell(5);
+	var cell17 = row1.insertCell(6);
+	var row2 = table.insertRow();
+	var cell21 = row2.insertCell(0);
+	var cell22 = row2.insertCell(1);
+	var cell23 = row2.insertCell(2);
+	var cell24 = row2.insertCell(3);
+	var cell25 = row2.insertCell(4);
+	var cell26 = row2.insertCell(5);
+	var cell27 = row2.insertCell(6);
+	var row3 = table.insertRow();
+	var cell31 = row3.insertCell(0);
+	var cell32 = row3.insertCell(1);
+	var cell33 = row3.insertCell(2);
+	var cell34 = row3.insertCell(3);
+	var cell35 = row3.insertCell(4);
+	var cell36 = row3.insertCell(5);
+	var cell37 = row3.insertCell(6);
+	var row4 = table.insertRow();
+	var cell41 = row4.insertCell(0);
+	var cell42 = row4.insertCell(1);
+	var cell43 = row4.insertCell(2);
+	var cell44 = row4.insertCell(3);
+	var cell45 = row4.insertCell(4);
+	var cell46 = row4.insertCell(5);
+	var cell47 = row4.insertCell(6);
+	var row5 = table.insertRow();
+	var cell51 = row5.insertCell(0);
+	var cell52 = row5.insertCell(1);
+	var cell53 = row5.insertCell(2);
+	var cell54 = row5.insertCell(3);
+	var cell55 = row5.insertCell(4);
+	var cell56 = row5.insertCell(5);
+	var cell57 = row5.insertCell(6);
+	var row6 = table.insertRow();
+	var cell61 = row6.insertCell(0);
+	var cell62 = row6.insertCell(1);
+	var cell63 = row6.insertCell(2);
+	var cell64 = row6.insertCell(3);
+	var cell65 = row6.insertCell(4);
+	var cell66 = row6.insertCell(5);
+	var cell67 = row6.insertCell(6);	
+	cell11.innerHTML="TELUGU";
+	cell12.innerHTML=telugut1;
+	cell13.innerHTML=telugut2;
+	cell14.innerHTML=telugut3;
+	cell15.innerHTML=telugut4;
+	cell16.innerHTML=telugutotal;
+	cell17.innerHTML=telugugrade;	
+	cell21.innerHTML="HINDI";
+	cell22.innerHTML=hindit1;
+	cell23.innerHTML=hindit2;
+	cell24.innerHTML=hindit3;
+	cell25.innerHTML=hindit4;
+	cell26.innerHTML=hinditotal;
+	cell27.innerHTML=hindigrade;	
+	cell31.innerHTML="ENGLISH";
+	cell32.innerHTML=englisht1;
+	cell33.innerHTML=englisht2;
+	cell34.innerHTML=englisht3;
+	cell35.innerHTML=englisht4;
+	cell36.innerHTML=englishtotal;
+	cell37.innerHTML=englishgrade;	
+	cell41.innerHTML="MATHEMATICS";
+	cell42.innerHTML=mathst1;
+	cell43.innerHTML=mathst2;
+	cell44.innerHTML=mathst3;
+	cell45.innerHTML=mathst4;
+	cell46.innerHTML=mathstotal;
+	cell47.innerHTML=mathsgrade;	
+	cell51.innerHTML="SCIENCE";
+	cell52.innerHTML=sciencet1;
+	cell53.innerHTML=sciencet2;
+	cell54.innerHTML=sciencet3;
+	cell55.innerHTML=sciencet4;
+	cell56.innerHTML=sciencetotal;
+	cell57.innerHTML=sciencegrade;	
+	cell61.innerHTML="SOCIAL";
+	cell62.innerHTML=socialt1;
+	cell63.innerHTML=socialt2;
+	cell64.innerHTML=socialt3;
+	cell65.innerHTML=socialt4;
+	cell66.innerHTML=socialtotal;
+	cell67.innerHTML=socialgrade;
+	return initilize();
+	}
+	
+	function View2(){
+	var messagesRef2 = firebase.database().ref(stuclass+'Marks').orderByChild("name").equalTo(stuname);
+		messagesRef2.once('value') .then(function(snapshot) {
+	    snapshot.forEach(function(childSnapshot) {
+				var childData = childSnapshot.val();
+				var subjectname = childData.subjectname;
+				eval(subjectname+"t1"+"= '"+childData.tool1+"'");
+				eval(subjectname+"t2"+"= '"+childData.tool2+"'");
+				eval(subjectname+"t3"+"= '"+childData.tool3+"'");
+				eval(subjectname+"t4"+"= '"+childData.tool4+"'");
+				eval(subjectname+"total"+"= '"+childData.total+"'");
+				eval(subjectname+"grade"+"= '"+childData.grade+"'");
+			});	
+		insert2();
+		});
+	}
+	
+	function insert2(){
+	var table = document.getElementById("view");
+	var row1 = table.insertRow();
+	var cell11 = row1.insertCell(0);
+	var cell12 = row1.insertCell(1);
+	var cell13 = row1.insertCell(2);
+	var cell14 = row1.insertCell(3);
+	var cell15 = row1.insertCell(4);
+	var cell16 = row1.insertCell(5);
+	var cell17 = row1.insertCell(6);
+	var row2 = table.insertRow();
+	var cell21 = row2.insertCell(0);
+	var cell22 = row2.insertCell(1);
+	var cell23 = row2.insertCell(2);
+	var cell24 = row2.insertCell(3);
+	var cell25 = row2.insertCell(4);
+	var cell26 = row2.insertCell(5);
+	var cell27 = row2.insertCell(6);
+	var row3 = table.insertRow();
+	var cell31 = row3.insertCell(0);
+	var cell32 = row3.insertCell(1);
+	var cell33 = row3.insertCell(2);
+	var cell34 = row3.insertCell(3);
+	var cell35 = row3.insertCell(4);
+	var cell36 = row3.insertCell(5);
+	var cell37 = row3.insertCell(6);
+	var row4 = table.insertRow();
+	var cell41 = row4.insertCell(0);
+	var cell42 = row4.insertCell(1);
+	var cell43 = row4.insertCell(2);
+	var cell44 = row4.insertCell(3);
+	var cell45 = row4.insertCell(4);
+	var cell46 = row4.insertCell(5);
+	var cell47 = row4.insertCell(6);
+	var row5 = table.insertRow();
+	var cell51 = row5.insertCell(0);
+	var cell52 = row5.insertCell(1);
+	var cell53 = row5.insertCell(2);
+	var cell54 = row5.insertCell(3);
+	var cell55 = row5.insertCell(4);
+	var cell56 = row5.insertCell(5);
+	var cell57 = row5.insertCell(6);
+	var row6 = table.insertRow();
+	var cell61 = row6.insertCell(0);
+	var cell62 = row6.insertCell(1);
+	var cell63 = row6.insertCell(2);
+	var cell64 = row6.insertCell(3);
+	var cell65 = row6.insertCell(4);
+	var cell66 = row6.insertCell(5);
+	var cell67 = row6.insertCell(6);
+	var row7 = table.insertRow();
+	var cell71 = row7.insertCell(0);
+	var cell72 = row7.insertCell(1);
+	var cell73 = row7.insertCell(2);
+	var cell74 = row7.insertCell(3);
+	var cell75 = row7.insertCell(4);
+	var cell76 = row7.insertCell(5);
+	var cell77 = row7.insertCell(6);	
+	cell11.innerHTML="TELUGU";
+	cell12.innerHTML=telugut1;
+	cell13.innerHTML=telugut2;
+	cell14.innerHTML=telugut3;
+	cell15.innerHTML=telugut4;
+	cell16.innerHTML=telugutotal;
+	cell17.innerHTML=telugugrade;	
+	cell21.innerHTML="HINDI";
+	cell22.innerHTML=hindit1;
+	cell23.innerHTML=hindit2;
+	cell24.innerHTML=hindit3;
+	cell25.innerHTML=hindit4;
+	cell26.innerHTML=hinditotal;
+	cell27.innerHTML=hindigrade;	
+	cell31.innerHTML="ENGLISH";
+	cell32.innerHTML=englisht1;
+	cell33.innerHTML=englisht2;
+	cell34.innerHTML=englisht3;
+	cell35.innerHTML=englisht4;
+	cell36.innerHTML=englishtotal;
+	cell37.innerHTML=englishgrade;	
+	cell41.innerHTML="MATHEMATICS";
+	cell42.innerHTML=mathst1;
+	cell43.innerHTML=mathst2;
+	cell44.innerHTML=mathst3;
+	cell45.innerHTML=mathst4;
+	cell46.innerHTML=mathstotal;
+	cell47.innerHTML=mathsgrade;	
+	cell51.innerHTML="PHYSICS";
+	cell52.innerHTML=physicst1;
+	cell53.innerHTML=physicst2;
+	cell54.innerHTML=physicst3;
+	cell55.innerHTML=physicst4;
+	cell56.innerHTML=physicstotal;
+	cell57.innerHTML=physicsgrade;	
+	cell61.innerHTML="BIOLOGY";
+	cell62.innerHTML=biologyt1;
+	cell63.innerHTML=biologyt2;
+	cell64.innerHTML=biologyt3;
+	cell65.innerHTML=biologyt4;
+	cell66.innerHTML=biologytotal;
+	cell67.innerHTML=biologygrade;	
+	cell71.innerHTML="SOCIAL";
+	cell72.innerHTML=socialt1;
+	cell73.innerHTML=socialt2;
+	cell74.innerHTML=socialt3;
+	cell75.innerHTML=socialt4;
+	cell76.innerHTML=socialtotal;
+	cell77.innerHTML=socialgrade;
+	return initilize();
+	}
+	
+	function initilize(){
+	telugut1=0;telugut2=0;telugut3=0;telugut4=0;telugutotal=0;telugugrade="D1";
+	hindit1=0;hindit2=0;hindit3=0;hindit4=0;hinditotal=0;hindigrade="D1";
+	englisht1=0;englisht2=0;englisht3=0;englisht4=0;englishtotal=0;englishgrade="D1";
+	mathst1=0;mathst2=0;mathst3=0;mathst4=0;mathstotal=0;mathsgrade="D1";		
+	sciencet1=0;sciencet2=0;sciencet3=0;sciencet4=0;sciencetotal=0;sciencegrade="D1";	
+	physicst1=0;physicst2=0;physicst3=0;physicst4=0;physicstotal=0;physicsgrade="D1";	
+	biologyt1=0;biologyt2=0;biologyt3=0;biologyt4=0;biologytotal=0;biologygrade="D1";	
+	socialt1=0;socialt2=0;socialt3=0;socialt4=0;socialtotal=0;socialgrade="D1";	
+	}
+		
+function printData()
+   {
+   var printWindow = window.open('', '', 'height=3000,width=3000');
+        printWindow.document.write('<html><head><title>Table Contents</title>');
+ 
+        //Print the Table CSS.
+        var table_style = document.getElementById("views").innerHTML;
+        printWindow.document.write('<style type = "text/css">');
+        printWindow.document.write(table_style);
+        printWindow.document.write('</style>');
+        printWindow.document.write('</head>');
+ 
+        //Print the DIV contents i.e. the HTML Table.
+        printWindow.document.write('<body>');
+        var divContents = document.getElementById("display").innerHTML;
+        printWindow.document.write(divContents);
+        printWindow.document.write('</body>');
+ 
+        printWindow.document.write('</html>');
+        printWindow.document.close();
+        printWindow.print();
+   }
+   
+   function exportTableToExcel(tableID, filename = ''){
+    var downloadLink;
+    var dataType = 'application/vnd.ms-excel';
+    var tableSelect = document.getElementById(tableID);
+    var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+    
+    // Specify file name
+    filename = filename?filename+'.xls':stuname+stuclass+'Marks.xls';
+    
+    // Create download link element
+    downloadLink = document.createElement("a");
+    
+    document.body.appendChild(downloadLink);
+    
+    if(navigator.msSaveOrOpenBlob){
+        var blob = new Blob(['\ufeff', tableHTML], {
+            type: dataType
+        });
+        navigator.msSaveOrOpenBlob( blob, filename);
+    }else{
+        // Create a link to the file
+        downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+    
+        // Setting the file name
+        downloadLink.download = filename;
+        
+        //triggering the function
+        downloadLink.click();
+    }
+}
+	</script>
+</body>
+
+</html>
